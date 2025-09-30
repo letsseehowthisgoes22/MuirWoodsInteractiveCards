@@ -1,7 +1,31 @@
+/* Typography */
 body {
     background-color: #f7f5ef;
     color: #555658;
+    font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 600;
+}
+
+/* Header Section */
+.header-section {
+    padding: 2rem 0;
+}
+
+.muirwood-logo {
+    max-width: 180px;
+    height: auto;
+    margin: 0 auto;
+}
+
+.tagline {
+    color: #7ca7ad;
+    font-weight: 400;
+}
+
 .tab-active {
     border-bottom: 2px solid #4a815a;
     color: #4a815a;
@@ -28,9 +52,13 @@ body {
 .btn-primary {
     background-color: #4a815a;
     color: #ffffff;
+    border-radius: 6px;
+    transition: all 0.2s ease;
 }
 .btn-primary:hover {
     background-color: #3a6847;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 #networkGraph {
     width: 100%;
@@ -137,10 +165,14 @@ body {
 .btn-primary {
     background-color: #4a815a;
     color: white;
+    border-radius: 6px;
+    transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
     background-color: #3a6847;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .tab-active {
@@ -400,4 +432,19 @@ body {
 
 #editContactModal .space-y-4 > div:last-child {
     margin-bottom: 0;
+}
+
+/* Footer */
+.footer-section {
+    background-color: #ffffff;
+    border-top: 1px solid #e5e7eb;
+}
+
+.footer-section p {
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.footer-section .font-semibold {
+    color: #4a815a;
 }
