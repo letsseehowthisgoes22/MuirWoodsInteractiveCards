@@ -3,10 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Awsome Card Scanner v1.0.0</title>
+    <meta name="theme-color" content="#4a815a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Digitize, organize, and analyze your professional network">
+    <title>Interactive Card Reader Muir Wood</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.css" rel="stylesheet">
     <link href="styles.css" rel="stylesheet">
+    <script src="app-config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@5.2.3/dist/amazon-cognito-identity.min.js"></script>
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -16,16 +21,17 @@
 <body class="min-h-screen">
     <div class="container mx-auto px-4 py-8">
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold mb-2">Awsome Card Scanner v1.0.0</h1>
+            <h1 class="text-3xl font-bold mb-2">Interactive Card Reader Muir Wood</h1>
             <p class="text-lg">Digitize, organize, and analyze your professional network</p>
             <button id="signOutBtn" class="btn-primary px-4 py-2 rounded hidden">Sign Out</button>
         </div>
 
         <!-- Tab Navigation -->
         <div class="border-b border-gray-300 flex mb-8">
-            <button id="scanTab" class="px-4 py-2 font-medium tab-active">Scan Cards</button>
-            <button id="contactsTab" class="px-4 py-2 font-medium">My Contacts</button>
-            <button id="networkTab" class="px-4 py-2 font-medium">Network Analysis</button>
+            <button id="scanTab" class="px-4 py-2 font-medium tab-active">Scan</button>
+            <button id="contactsTab" class="px-4 py-2 font-medium">Contacts</button>
+            <button id="networkTab" class="px-4 py-2 font-medium">Insights</button>
+            <button id="assistantTab" class="px-4 py-2 font-medium">Assistant</button>
         </div>
 
         <!-- Scan Tab Content -->
@@ -437,41 +443,26 @@
             <span id="toastMessage">Contact saved successfully!</span>
         </div>
 
-        <!-- Chat Button -->
-        <button id="chatButton" class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all duration-200 hover:scale-110 z-40">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-            </svg>
-        </button>
-
-        <!-- Chat Window -->
-        <div id="chatWindow" class="fixed bottom-24 right-6 w-96 h-[600px] bg-white rounded-lg shadow-xl hidden z-50 flex flex-col">
-            <!-- Chat Header -->
-            <div class="bg-blue-600 text-white p-4 rounded-t-lg flex justify-between items-center">
-                <h3 class="font-semibold">Contact Database Assistant</h3>
-                <button id="closeChat" class="text-white hover:text-gray-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Chat Messages -->
-            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-4">
-                <!-- Messages will be added here dynamically -->
-            </div>
-
-            <!-- Chat Input -->
-            <form id="chatForm" class="p-4 border-t">
-                <div class="flex gap-2">
-                    <input type="text" id="chatInput" class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ask about your contacts...">
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                        </svg>
-                    </button>
+        <!-- Assistant Tab Content -->
+        <div id="assistantContent" class="hidden fade-in">
+            <div class="mb-4">
+                <h2 class="text-xl font-semibold mb-2">Contact Database Assistant</h2>
+                <p class="text-gray-600 mb-4">Ask questions about your professional network</p>
+                
+                <div class="bg-white rounded-lg shadow-md p-4 h-96 overflow-y-auto space-y-4 mb-4" id="chatMessages">
                 </div>
-            </form>
+
+                <form id="chatForm" class="bg-white rounded-lg shadow-md p-4">
+                    <div class="flex gap-2">
+                        <input type="text" id="chatInput" class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ask about your contacts...">
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -479,6 +470,20 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then((registration) => {
+                        console.log('ServiceWorker registration successful:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('ServiceWorker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+
     <script src="script.js"></script>
 </body>
 </html>

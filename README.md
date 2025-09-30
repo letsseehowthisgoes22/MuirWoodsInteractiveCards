@@ -50,6 +50,7 @@ The application combines AWS services with the DeepSeek API to deliver a compreh
 - AWS SAM CLI installed
 - Python 3.13 or later
 - DeepSeek API key
+- Domain name and SSL certificate (for production deployment)
 
 ### Installation
 
@@ -64,7 +65,12 @@ cd application
 pip install -r requirements.txt
 cd ..
 ```
-3. Update the `Parameters` section in `template.yaml`, including your domain name, ACM ssl cert arn, and deepseek api key
+3. Set up environment variables for security:
+   ```bash
+   export DEEPSEEK_API_KEY="your-deepseek-api-key-here"
+   export DOMAIN_NAME="cards.yourdomain.com"
+   export ACM_CERTIFICATE_ARN="arn:aws:acm:us-east-1:your-account:certificate/your-cert-id"
+   ```
 4. Go to AWS Console, find the service `Amazon API Gateway`, request increase for `Maximum integration timeout in milliseconds` to 60000, it's a small increase so usually the request will be approved automatically by AWS
 5. Deploy the application:
 ```bash

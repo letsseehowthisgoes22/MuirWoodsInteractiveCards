@@ -1,4 +1,10 @@
-// API Configuration done by deploy.sh (assumed to be injected via deploy.sh)
+const APP_NAME = "Interactive Card Reader Muir Wood";
+const API_URL = window.__APP_CONFIG__?.apiBaseUrl || '';
+const poolData = {
+    UserPoolId: window.__APP_CONFIG__?.cognito?.userPoolId || '',
+    ClientId: window.__APP_CONFIG__?.cognito?.clientId || ''
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM fully loaded');
 
@@ -38,9 +44,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const scanTab = document.getElementById('scanTab');
     const contactsTab = document.getElementById('contactsTab');
     const networkTab = document.getElementById('networkTab');
+    const assistantTab = document.getElementById('assistantTab');
     const scanContent = document.getElementById('scanContent');
     const contactsContent = document.getElementById('contactsContent');
     const networkContent = document.getElementById('networkContent');
+    const assistantContent = document.getElementById('assistantContent');
     const signInModal = document.getElementById('signInModal');
     const signInForm = document.getElementById('signInForm');
     const signInError = document.getElementById('signInError');
@@ -70,18 +78,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteAllBtn = document.getElementById('deleteAllBtn');
     const cancelDeleteAllBtn = document.getElementById('cancelDeleteAllBtn');
     const confirmDeleteAllBtn = document.getElementById('confirmDeleteAllBtn');
-    // Chat elements
-    const chatButton = document.getElementById('chatButton');
-    const chatWindow = document.getElementById('chatWindow');
-    const closeChat = document.getElementById('closeChat');
     const chatMessages = document.getElementById('chatMessages');
     const chatForm = document.getElementById('chatForm');
     const chatInput = document.getElementById('chatInput');
 
-    // Chat state
     let chatHistory = [];
 
-    // Chat functions
     function addMessage(message, isUser = false) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
@@ -107,21 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
         chatHistory.push({ message, isUser });
     }
 
-    function showChat() {
-        chatWindow.classList.remove('hidden');
-        chatButton.classList.add('hidden');
-        chatInput.focus();
-        
-        // Add welcome message if chat is empty
-        if (chatHistory.length === 0) {
-            addMessage("Hello! I'm your Contact Database Assistant. I can help you analyze your contacts, find specific information, and provide insights about your network. What would you like to know?");
-        }
-    }
-
-    function hideChat() {
-        chatWindow.classList.add('hidden');
-        chatButton.classList.remove('hidden');
-    }
 
     async function handleChatMessage(message) {
         try {
@@ -177,28 +164,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Chat event listeners
-    chatButton.addEventListener('click', showChat);
-    closeChat.addEventListener('click', hideChat);
-    
     chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const message = chatInput.value.trim();
         if (!message) return;
 
-        // Add user message
+        if (chatHistory.length === 0) {
+            addMessage("Hello! I'm your Contact Database Assistant. I can help you analyze your contacts, find specific information, and provide insights about your network. What would you like to know?");
+        }
+
         addMessage(message, true);
         chatInput.value = '';
 
-        // Handle the message
         await handleChatMessage(message);
-    });
-
-    // Close chat on escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !chatWindow.classList.contains('hidden')) {
-            hideChat();
-        }
     });
 
     // Debug: Log all critical elements
@@ -286,12 +264,10 @@ document.addEventListener('DOMContentLoaded', () => {
         signInModal.classList.add('hidden');
     }
 
-    // Tab Switching with Authentication
     async function switchToTab(tab) {
         if (await isAuthenticated()) {
-            // First, update UI immediately to show the selected tab content
-            [scanTab, contactsTab, networkTab].forEach(t => t.classList.remove('tab-active'));
-            [scanContent, contactsContent, networkContent].forEach(c => c.classList.add('hidden'));
+            [scanTab, contactsTab, networkTab, assistantTab].forEach(t => t.classList.remove('tab-active'));
+            [scanContent, contactsContent, networkContent, assistantContent].forEach(c => c.classList.add('hidden'));
             
             // Show the selected tab content immediately
             if (tab === 'scan') {
@@ -318,17 +294,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 networkTab.classList.add('tab-active');
                 networkContent.classList.remove('hidden');
                 
-                // Always refresh network visualizations when switching to the network tab
                 if (contactsData.length > 0) {
                     updateNetworkVisualization();
                     updateNetworkAnalytics();
                 } else {
-                    // Show loading state in network visualization area if needed
                     networkGraph.innerHTML = '<div class="flex items-center justify-center h-full"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mb-4 mr-2"></div><p>Loading network data...</p></div>';
                 }
+            } else if (tab === 'assistant') {
+                assistantTab.classList.add('tab-active');
+                assistantContent.classList.remove('hidden');
             }
             
-            // Then, load data asynchronously if needed
+            if (contactsData.length === 0)
             if (contactsData.length === 0) {
                 // Start loading contacts in the background
                 loadContacts().then(() => {
@@ -354,10 +331,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Event Listeners for Tabs
     scanTab.addEventListener('click', () => switchToTab('scan'));
     contactsTab.addEventListener('click', () => switchToTab('contacts'));
     networkTab.addEventListener('click', () => switchToTab('network'));
+    assistantTab.addEventListener('click', () => switchToTab('assistant'));
     goToContacts.addEventListener('click', (e) => {
         e.preventDefault();
         switchToTab('contacts');
@@ -557,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const response = await fetch(`${API_URL}/vcard/${cardId}?userId=${encodeURIComponent(userId)}`);
                     if (!response.ok) throw new Error('Failed to download vCard');
                     const vcardContent = await response.text();
-                    const filename = `contact_${cardId}.vcf`;
+                    const filename = `contact_${cardId}-InteractiveHealth.vcf`;
                     const blob = new Blob([vcardContent], { type: 'text/vcard' });
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -2354,7 +2331,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!response.ok) throw new Error(`Failed to download vCard for ${contact.name}`);
                 
                 const vcardContent = await response.text();
-                const filename = `${contact.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.vcf`;
+                const filename = `${contact.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-InteractiveHealth.vcf`;
                 zip.file(filename, vcardContent);
             }
             
@@ -2363,7 +2340,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const url = window.URL.createObjectURL(content);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'contacts.zip';
+            a.download = 'contacts-InteractiveHealth.zip';
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);

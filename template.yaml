@@ -47,38 +47,36 @@ Description: "Business card scanner web app\n"
 
 Parameters:
   DomainName:
-    Default: "card.cmpapp.top"
     Type: "String"
-    Description: "The domain name for the frontend S3 bucket."
+    Description: "The domain name for the frontend S3 bucket (e.g., cards.yourdomain.com)."
   ACMCertificateArn:
-    Default: "arn:aws:acm:us-east-1:255327957584:certificate/51f2f21b-15e2-4dac-8c75-79c6ef5634fb"
     Type: "String"
     Description: "The ARN of the ACM certificate for the CloudFront distribution."
   DeepSeekApiKey:
-    Default: "ENTER_DEEPSEEK_API_KEY"
     Type: "String"
-    Description: "The DeepSeek API key for the backend Lambda function."
+    NoEcho: true
+    Description: "The DeepSeek API key for the backend Lambda function. Pass this as a parameter during deployment."
 
 Resources:
   BackendBucketBucketPolicy:
+    Metadata:
+      SamResourceId: "BackendBucketBucketPolicy"
+    Type: "AWS::S3::BucketPolicy"
     Properties:
       Bucket:
         Ref: "BackendBucket"
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-        - Resource:
-          - Fn::Sub: "arn:aws:s3:::${BackendBucket}/*"
+        - Effect: "Allow"
           Action: "s3:*"
-          Effect: "Allow"
+          Resource:
+          - Fn::Sub: "arn:aws:s3:::${BackendBucket}/*"
           Principal:
             AWS:
               Fn::GetAtt:
               - "MainIdentityPoolIAMAuthRole"
               - "Arn"
-    Metadata:
-      SamResourceId: "BackendBucketBucketPolicy"
-    Type: "AWS::S3::BucketPolicy"
   MainUserpool:
     Properties:
       Policies:
@@ -163,11 +161,10 @@ Resources:
           - "POST"
           - "PUT"
           AllowedOrigins:
-          - "*"
+          - Fn::Sub: "https://${DomainName}"
           AllowedHeaders:
           - "*"
-      BucketName:
-        Fn::Sub: "${AWS::StackName}-bucket"
+      BucketName: !Sub muirwood-cards-backend-${AWS::AccountId}-${AWS::Region}
     Metadata:
       SamResourceId: "BackendBucket"
     Type: "AWS::S3::Bucket"
@@ -392,15 +389,11 @@ Resources:
       Principal: "apigateway.amazonaws.com"
     Type: "AWS::Lambda::Permission"
   CloudFrontDistribution:
-    UpdateReplacePolicy: "Retain"
     Type: "AWS::CloudFront::Distribution"
+    UpdateReplacePolicy: "Retain"
     DeletionPolicy: "Retain"
     Properties:
       DistributionConfig:
-        Logging:
-          IncludeCookies: false
-          Bucket: ""
-          Prefix: ""
         Comment: "Business Card Scanner CDN"
         DefaultRootObject: "index.html"
         Origins:
@@ -409,23 +402,28 @@ Resources:
             Ref: "CloudFrontOriginAccessControl"
           ConnectionAttempts: 3
           OriginCustomHeaders: []
-          DomainName: !Sub "${DomainName}.s3.${AWS::Region}.amazonaws.com"
+          DomainName: !Sub
+            - "${Bucket}.s3.${AWS::Region}.amazonaws.com"
+            - { Bucket: !Ref FrontendBucket }
           OriginShield:
             Enabled: false
           S3OriginConfig:
             OriginAccessIdentity: ""
           OriginPath: ""
-          Id: !Sub "${DomainName}.s3.${AWS::Region}.amazonaws.com"
+          Id: !Sub
+            - "${Bucket}.s3.${AWS::Region}.amazonaws.com"
+            - { Bucket: !Ref FrontendBucket }
         ViewerCertificate:
+          CloudFrontDefaultCertificate: true
           MinimumProtocolVersion: "TLSv1.2_2021"
-          SslSupportMethod: "sni-only"
-          AcmCertificateArn: !Ref ACMCertificateArn
         PriceClass: "PriceClass_All"
         DefaultCacheBehavior:
           Compress: true
           FunctionAssociations: []
           LambdaFunctionAssociations: []
-          TargetOriginId: !Sub "${DomainName}.s3.${AWS::Region}.amazonaws.com"
+          TargetOriginId: !Sub
+            - "${Bucket}.s3.${AWS::Region}.amazonaws.com"
+            - { Bucket: !Ref FrontendBucket }
           ViewerProtocolPolicy: "allow-all"
           GrpcConfig:
             Enabled: false
@@ -503,7 +501,7 @@ Resources:
             CookieBehavior: "none"
           EnableAcceptEncodingGzip: true
         DefaultTTL: 86400
-        Name: "Managed-CachingOptimized"
+        Name: "BizCardScannerCustomCachePolicy"
   MainIdentityPool:
     Properties:
       IdentityPoolName:
@@ -876,9 +874,9 @@ Resources:
         OriginAccessControlOriginType: "s3"
         Name: !Sub "${DomainName}.s3.${AWS::Region}.amazonaws.com"
   FrontendBucket:
-    Properties:
-      BucketName:
-        Ref: "DomainName"
     Metadata:
       SamResourceId: "FrontendBucket"
     Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName:
+        Ref: "DomainName"

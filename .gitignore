@@ -195,6 +195,10 @@ ENV/
 env.bak/
 venv.bak/
 
+# Environment variables with sensitive data
+.env.local
+.env.production
+
 # Spyder project settings
 .spyderproject
 .spyproject
