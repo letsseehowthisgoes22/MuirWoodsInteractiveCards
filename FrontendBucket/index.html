@@ -11,6 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.css" rel="stylesheet">
     <link href="styles.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="app-config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@5.2.3/dist/amazon-cognito-identity.min.js"></script>
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -20,9 +21,12 @@
 </head>
 <body class="min-h-screen">
     <div class="container mx-auto px-4 py-8">
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold mb-2">Interactive Card Reader Muir Wood</h1>
-            <p class="text-lg">Digitize, organize, and analyze your professional network</p>
+        <div class="text-center mb-8 header-section">
+            <div class="flex items-center justify-center mb-4">
+                <img src="muirwood-logo.png" alt="Muir Wood Logo" class="muirwood-logo">
+            </div>
+            <h1 class="text-3xl font-bold mb-2">Interactive Card Reader</h1>
+            <p class="text-lg tagline">Digitize, organize, and analyze your professional network</p>
             <button id="signOutBtn" class="btn-primary px-4 py-2 rounded hidden">Sign Out</button>
         </div>
 
@@ -465,6 +469,13 @@
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer-section py-6 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-sm text-gray-600">Created by <span class="font-semibold text-gray-700">bhealth ventures</span></p>
+        </div>
+    </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
