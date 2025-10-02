@@ -305,7 +305,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 assistantContent.classList.remove('hidden');
             }
             
-            if (contactsData.length === 0)
             if (contactsData.length === 0) {
                 // Start loading contacts in the background
                 loadContacts().then(() => {
