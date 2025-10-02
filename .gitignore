@@ -115,7 +115,7 @@ __pycache__/
 *$py.class
 
 # C extensions
-*.so
+# *.so - commented out to allow Lambda layer dependencies
 
 # Distribution / packaging
 .Python
@@ -261,7 +261,7 @@ $RECYCLE.BIN/
 /docs/vid-script.md
 
 # sam files
-__init__.py
+# __init__.py - commented out to allow Lambda layer dependencies
 events/
 
 # End of https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocode
